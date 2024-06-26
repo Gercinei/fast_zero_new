@@ -31,7 +31,8 @@ def read_root_html():
     <body>
         <h1>Olá Mundo!</h1>
     </body
-    </html>"""
+    </html>
+    """
 
 
 @app.get('/users/', response_model=UserList)

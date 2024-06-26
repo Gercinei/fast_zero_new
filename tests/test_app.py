@@ -12,7 +12,19 @@ def test_root_deve_retornar_ok_e_ola_mundo_em_html(client):
     response = client.get('/html')
 
     assert response.status_code == HTTPStatus.OK
-    assert response.text
+    assert (
+        response.text
+        == """
+    <html>
+        <head>
+            <title>Olá mundo em HTML</title>
+        </head>
+    <body>
+        <h1>Olá Mundo!</h1>
+    </body
+    </html>
+    """
+    )
 
 
 def test_create_user(client):
@@ -63,8 +75,28 @@ def test_update_user(client):
     }
 
 
+def test_update_user_not_found(client):
+    response = client.put(
+        '/users/2',
+        json={
+            'username': 'Gercinei',
+            'email': 'gercinei@exemplo.com',
+            'password': 'senha',
+        },
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'User not found'}
+
+
 def test_delete_user(client):
     response = client.delete('users/1')
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'User deleted'}
+
+
+def test_delete_user_not_found(client):
+    response = client.delete('users/2')
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'User not found'}
