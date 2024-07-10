@@ -2,14 +2,16 @@ from http import HTTPStatus
 
 from jwt import decode
 
-from fast_zero_new.security import SECRET_KEY, create_access_token
+from fast_zero_new.security import create_access_token, settings
 
 
 def test_jwt():
     data = {'test': 'test'}
     token = create_access_token(data)
 
-    decoded = decode(token, SECRET_KEY, algorithms=['HS256'])
+    decoded = decode(
+        token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+    )
 
     assert decoded['test'] == data['test']
     assert decoded['exp']  # Testa se o valor de exp foi adicionado ao token
@@ -48,7 +50,7 @@ def test_get_current_user_none(client, user):
 
 def test_logon_for_access_token_email_invalid(client, user):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={'username': 'alguem@teste.com', 'password': 'testeteste'},
     )
 
@@ -60,7 +62,7 @@ def test_logon_for_access_token_email_invalid(client, user):
 
 def test_logon_access_token_password_invalid(client, user):
     response = client.post(
-        '/token',
+        '/auth/token',
         data={'username': 'teste@teste.com', 'password': 'senhadiferente'},
     )
 
