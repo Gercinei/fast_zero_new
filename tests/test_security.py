@@ -26,47 +26,42 @@ def test_jwt_invalid_token(client):
     assert response.json() == {'detail': 'Could not validate credentials'}
 
 
-def test_get_current_user_not(client, user):
-    data = {'username': 'teste@invalido.com'}
-    token = create_access_token(data)
+def test_get_current_user_not(client):
+    data = {'password': 'testeteste'}
+    token_sem_sub = create_access_token(data)
+
     response = client.delete(
-        '/users/1', headers={'Authorization': f'Bearer {token}'}
+        '/users/1', headers={'Authorization': f'Bearer {token_sem_sub}'}
     )
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert response.json() == {'detail': 'Could not validate credentials'}
 
 
-def test_get_current_user_none(client, user):
-    data = {'sub': 'teste@invalido.com'}
+def test_get_current_user_decoderro(client):
+    data = {'username': '@@@@'}
     token = create_access_token(data)
+    token_invalid = decode(
+        token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+    )
     response = client.delete(
-        '/users/1', headers={'Authorization': f'Bearer {token}'}
+        '/users/1', headers={'Authorization': f'Bearer {token_invalid}'}
     )
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert response.json() == {'detail': 'Could not validate credentials'}
 
 
-def test_logon_for_access_token_email_invalid(client, user):
-    response = client.post(
-        '/auth/token',
-        data={'username': 'alguem@teste.com', 'password': 'testeteste'},
+def test_get_current_user_is_none(client, user):
+    data = {'sub': 'alguem@email.com', 'password': 'segredo'}
+    token = create_access_token(data)
+
+    response = client.delete(
+        '/users/1',
+        headers={'Authorization': f'Bearer {token}'},
     )
 
     token = response.json()
 
-    assert response.status_code == HTTPStatus.BAD_REQUEST
-    assert token == {'detail': 'Incorrect email or password'}
-
-
-def test_logon_access_token_password_invalid(client, user):
-    response = client.post(
-        '/auth/token',
-        data={'username': 'teste@teste.com', 'password': 'senhadiferente'},
-    )
-
-    token = response.json()
-
-    assert response.status_code == HTTPStatus.BAD_REQUEST
-    assert token == {'detail': 'Incorrect email or password'}
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.json() == {'detail': 'Could not validate credentials'}
