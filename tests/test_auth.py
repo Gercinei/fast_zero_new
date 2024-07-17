@@ -62,7 +62,7 @@ def test_refresh_token(client, user, token):
         headers={'Authorization': f'Bearer {token}'},
     )
 
-    data = response. json()
+    data = response.json()
 
     assert response.status_code == HTTPStatus.OK
     assert 'access_token' in data
