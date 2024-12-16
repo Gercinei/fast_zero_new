@@ -65,7 +65,7 @@ def test_read_user_by_id_found(client, user):
     assert response.json() == {'message': 'User found'}
 
 
-def test_read_user_by_id_not_found(client, user, token):
+def test_read_user_by_id_not_found(client, user):
     response = client.get('/users/2')
 
     assert response.status_code == HTTPStatus.NOT_FOUND
